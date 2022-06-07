@@ -13,6 +13,7 @@ djangorestframework-simplejwt = "*"
 django-heroku = "*"
 gunicorn = "*"
 psycopg2 = "*"
+whitenoise = "*"
 
 [dev-packages]
 
