@@ -1,6 +1,8 @@
+from re import S
+from django.db import IntegrityError
 from rest_framework import generics
-from .models import Community, CommunityPost, Membership
-from .serializers import CommunitySerializer, CommunityPostSerializer, MembershipSerializer
+from .models import Community, CommunityPost, FavRecipe, Membership, Comment
+from .serializers import CommunitySerializer, CommunityPostSerializer, FavRecipeSerializer, MembershipSerializer, CommentSerializer
 from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -64,4 +66,39 @@ def allmemberships(request):
 def usermemberships(request, pk):
     memberships = Membership.objects.filter(user=pk)
     serializer = MembershipSerializer(memberships, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET', 'POST'])
+def post_comments(request, pk):
+    if request.method == 'POST':
+        post = CommunityPost.objects.get(id=pk)
+        comment = Comment(name=request.user, username=request.user.user_name, post=post, body=request.data['comment'])
+        comment.save()
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
+
+    comments = Comment.objects.filter(post=pk)
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET', 'POST'])
+def user_favourite_recipes(request):
+    if request.method == 'POST':
+        try:
+            fav_recipe = FavRecipe(recipe_id=request.data['recipe_id'], user=request.user, img=request.data['img'], title=request.data['title'], category=request.data['category'])
+            fav_recipe.save()
+            response_body ={ 
+                "message" : "Added as favourite"
+            }
+            return Response(response_body, status=201)
+        except IntegrityError as e:
+            error = {
+                "message" : "Already added as favourite",
+                "detail" : str(e)
+            }
+            return Response(error, status=208)
+
+    favourites = FavRecipe.objects.filter(user=request.user)
+    serializer = FavRecipeSerializer(favourites, many=True)
     return Response(serializer.data)

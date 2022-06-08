@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CommunityList, CommunityPosts, CommunityDetail, community_posts, memberships, my_communities, allmemberships, usermemberships
+from .views import CommunityList, CommunityPosts, CommunityDetail, community_posts, memberships, my_communities, allmemberships, user_favourite_recipes, usermemberships, post_comments
 app_name = 'community_api'
 
 urlpatterns = [
@@ -10,4 +10,6 @@ urlpatterns = [
     path('<int:pk>/memberships/', memberships, name="memberships_by_community"),
     path('mycommunities/', my_communities, name="my_communities"),
     path('usermemberships/<int:pk>/', usermemberships, name="user_memberships"),
+    path('posts/<int:pk>/comments/', post_comments, name="post_comments"),
+    path('recipes/favourites/', user_favourite_recipes, name="user_favourite_recipes"),
 ]
